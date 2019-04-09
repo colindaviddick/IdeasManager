@@ -5,8 +5,40 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IdeasManager"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
+        Title="Ideas Manager" Name="IdeasWindow" Height="450" Width="800" WindowStartupLocation="CenterScreen" WindowState="Maximized" KeyDown="Window_KeyDown" KeyUp="Window_KeyUp">
+
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center" MinHeight="300">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Name="SidePanel" Width="1*"/>
+            <ColumnDefinition Name="MainPanel" Width="3*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Name="FullWindow" Height="1*"/>
+            <RowDefinition Name="Buttons" Height="30"/>
+            <RowDefinition Name="Footer" Height="30"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Column="0">
+            <Label Content="Notes" FontWeight="DemiBold"/>
+            <ListBox Name="NoteList" AllowDrop="True" VerticalAlignment="Top" SelectionChanged="NoteList_SelectionChanged" ScrollViewer.VerticalScrollBarVisibility="Visible"/>
+        </StackPanel>
+
+        <!-- Connect to database for info -->
+        <TextBox Grid.Column="1" Grid.Row="0" Name="NoteName" Margin="5" Text="New Note" VerticalAlignment="Top" AutoWordSelection="True" TextAlignment="Center" FontWeight="Bold" Height="20"/>
+        <!-- Set the below Textbox to RichTextBox later, I want to be able to edit the text and add things like bulletpoints, highlighting, bold etc. -->        
+        <TextBox Grid.Column="1" Grid.Row="0" Margin="0 30 0 0" Name="NoteSpace" AutoWordSelection="True" MinHeight="400" AcceptsReturn="True" AcceptsTab="True" Text="&#xD;&#xA;&#x9;On window resize, set NoteList to Windowsize - 50 (to account for bottom section)&#xD;&#xA;&#xD;&#xA;&#x9;Set this box to Rich Text and fix errors.&#xD;&#xA;&#xD;&#xA;&#x9;Create Login system &amp; limit note list by user.&#xD;&#xA;&#xD;&#xA;&#x9;Use the generator to add lots of entries for each logged in user for testing :)"/>
+
+        <DockPanel Grid.Column="0" Grid.Row="1">
+            <Button Name="Delete" Content="Delete" VerticalAlignment="Bottom" Margin="5" HorizontalAlignment="Stretch" Click="Delete_Button_Click"/>
+            <Button Name="New" Content="New" VerticalAlignment="Bottom" Margin="5" HorizontalAlignment="Stretch" Click="New_Button_Click"/>
+        </DockPanel>
+        <DockPanel Grid.Column="1" Grid.Row="1">
+            <Button Name="Save_Button" Content="Save" Margin="5" Click="Save_Button_Click"/>
+        </DockPanel>
+        <ComboBox Grid.Column="0" Grid.Row="3" Name="ColourSelector" SelectionChanged="ColourSelector_SelectionChanged" Margin="5">
+            <ComboBoxItem>Aqua</ComboBoxItem>
+            <ComboBoxItem>Cool White</ComboBoxItem>
+            <ComboBoxItem>Default</ComboBoxItem>
+            <ComboBoxItem>Nightmode</ComboBoxItem>
+        </ComboBox>
     </Grid>
 </Window>
