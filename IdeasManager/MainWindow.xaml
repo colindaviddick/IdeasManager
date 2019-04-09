@@ -23,7 +23,7 @@
         </StackPanel>
 
         <!-- Connect to database for info -->
-        <TextBox Grid.Column="1" Grid.Row="0" Name="NoteName" Margin="5" Text="New Note" VerticalAlignment="Top" AutoWordSelection="True" TextAlignment="Center" FontWeight="Bold" Height="20"/>
+        <TextBox Grid.Column="1" Grid.Row="0" Name="NoteName" Margin="5" VerticalAlignment="Top" AutoWordSelection="True" TextAlignment="Center" FontWeight="Bold" Height="20"/>
         <!-- Set the below Textbox to RichTextBox later, I want to be able to edit the text and add things like bulletpoints, highlighting, bold etc. -->        
         <TextBox Grid.Column="1" Grid.Row="0" Margin="0 30 0 0" Name="NoteSpace" AutoWordSelection="True" MinHeight="400" AcceptsReturn="True" AcceptsTab="True" Text="&#xD;&#xA;&#x9;On window resize, set NoteList to Windowsize - 50 (to account for bottom section)&#xD;&#xA;&#xD;&#xA;&#x9;Set this box to Rich Text and fix errors.&#xD;&#xA;&#xD;&#xA;&#x9;Create Login system &amp; limit note list by user.&#xD;&#xA;&#xD;&#xA;&#x9;Use the generator to add lots of entries for each logged in user for testing :)"/>
 
