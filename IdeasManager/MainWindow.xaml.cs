@@ -9,7 +9,6 @@ using System.Windows.Media;
 namespace IdeasManager
 {
     // Things that need looked at:
-    // A title that contains the same string as another title will not be saved.
     // I need to be able to delete entries
     // The table needs to resize with the window
     // Colour scheme could do with being changable.
@@ -23,12 +22,17 @@ namespace IdeasManager
     // INSERT INTO Users(FirstName, LastName) VALUES('John', 'Smith')
     // END
 
+        // Settings.Default["SomeProperty"] = "Some Value";
+        // Settings.Default.Save(); // Saves settings in application configuration file
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-        SqlConnection sqlConnection;
+        Random r = new Random();
+
+        readonly SqlConnection sqlConnection;
 
         public MainWindow()
         {
@@ -76,6 +80,13 @@ namespace IdeasManager
 
         private void NoteList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            NoteSpace.Background = Brushes.LightBlue;
+            Announcement.Text = "Blue sky thinking... This idea has been locked away for later.";
+
+            Brush brush = new SolidColorBrush(Color.FromRgb((byte)r.Next(180, 230), (byte)r.Next(180, 230), (byte)r.Next(180, 230)));
+            NoteList.Background = brush;
+
+
             if (sqlConnection.State == ConnectionState.Closed)
             {
                 sqlConnection.Open();
@@ -127,6 +138,9 @@ namespace IdeasManager
         {
             NoteName.Text = "New Title";
             NoteSpace.Text = "New Note";
+            NoteSpace.Background = Brushes.LightGreen;
+            Save_Button.Background = Brushes.Green;
+            Announcement.Text = "The background has turned green to denote a new Idea, remember to save it if you want it to be kept.";
             NoteName.Focus();
             NoteName.SelectAll();
         }
@@ -149,7 +163,13 @@ namespace IdeasManager
             {
                 try
                 {
-                    string query = "insert into NoteData values (@UserName, @NoteTitle, @Note)";
+                    // Select from BLAH BLAH BLAH
+                    // Do that
+                    // If Result = > 0
+                    // Check if you want to save
+                    // Else create new... ???????????
+
+                    string query = "SELECT FROM NoteData WHERE NoteTitle = @NoteTitle; IF @@Rowcount = 0 INSERT INTO NoteData VALUES (@UserName, @NoteTitle, @Note)";
                     SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
                     sqlConnection.Open();
                     sqlCommand.Parameters.AddWithValue("UserName", "Colin");
@@ -164,6 +184,8 @@ namespace IdeasManager
                 finally
                 {
                     sqlConnection.Close();
+                    NoteSpace.Background = Brushes.LightBlue;
+                    Announcement.Text = "Idea saved! That sounds like a good one!";
                     ShowAllNotes();
                 }
             }
@@ -211,17 +233,6 @@ namespace IdeasManager
             }
         }
 
-        private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            NoteSpace.Background = Brushes.AliceBlue;
-        }
-
-        private void Window_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            NoteSpace.Background = Brushes.GhostWhite;
-        }
-
-
         //Start of code to change window colour theme.
         private void ColourSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -253,6 +264,56 @@ namespace IdeasManager
                 New.Background = Brushes.Crimson;
                 Delete.Background = Brushes.Green;
             }
+        }
+
+        private void NoteSpace_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string user = Properties.Settings.Default.LoggedInUserName;
+            Announcement.Text = user;
+
+            //if(NoteName.Text.ToString() != "New Title" && NoteSpace.Text.ToString() != "New Note")
+            //{
+            //    Save_Button.IsEnabled = true;
+            //}
+            //else
+            //{
+            //    Save_Button.IsEnabled = false;
+            //}
+        }
+
+        private void Save_Button_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+
+        }
+
+        private void New_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            Announcement.Text = "Click here when you've conjured up another award winning idea!";
+        }
+
+        private void Delete_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            Announcement.Text = "Not all ideas are winners, click here if your idea has run its course.";
+        }
+
+        private void NoteName_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (NoteName.Text == "New Title" || NoteSpace.Text == "New Note")
+            {
+                Announcement.Text = "You need to change the title and content of your idea before you can save.";
+                //  Save_Button.IsEnabled = false;
+            }
+
+            if (NoteName.Text != "New Title" && NoteSpace.Text != "New Note")
+            {
+                // Save_Button.IsEnabled = true;
+            }
+        }
+
+        private void About_Click(object sender, RoutedEventArgs e)
+        {
+            AboutPage aboutPage = new AboutPage();
+            aboutPage.Show();
         }
     }
 }

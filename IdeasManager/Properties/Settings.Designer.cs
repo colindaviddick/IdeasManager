@@ -33,5 +33,14 @@ namespace IdeasManager.Properties {
                 return ((string)(this["TestLoginCredentialsConnectionString"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("temp")]
+        public string LoggedInUserName {
+            get {
+                return ((string)(this["LoggedInUserName"]));
+            }
+        }
     }
 }
