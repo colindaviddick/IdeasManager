@@ -1,22 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using MessageBox = System.Windows.MessageBox;
 namespace IdeasManager
 {
+
+
     /// <summary>
     /// Interaction logic for LogInPage.xaml
     /// </summary>
@@ -27,9 +20,6 @@ namespace IdeasManager
             string connectionString = (@"Data Source=COLIN\SQLMAIN;Initial Catalog=TestLoginCredentials;Persist Security Info=True;User ID=sa;Password=Thr33four");
             SqlConnection sqlConnection = new SqlConnection(connectionString);
             InitializeComponent();
-            PasswordConfirm.Visibility = Visibility.Collapsed;
-            ConfirmPassword.Visibility = Visibility.Collapsed;
-            // ConfirmPassword.IsVisible = false;
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
@@ -89,27 +79,24 @@ namespace IdeasManager
 
             if (LoginButton.Content.ToString() == "Log In")
             {
-                //System.Windows.Forms.MessageBox.Show("Login");
-                // new MainWindow().Show();
                 try
                 {
+
                     if (sqlConnection.State == ConnectionState.Closed)
                     {
                         sqlConnection.Open();
-                        //    System.Windows.Forms.MessageBox.Show("Connection opened");
                     }
+
                     String query = "SELECT COUNT(1) FROM tblUser WHERE Username=@UserName AND Password=@Password";
                     SqlCommand sqlCmd = new SqlCommand(query, sqlConnection);
                     sqlCmd.CommandType = CommandType.Text;
                     sqlCmd.Parameters.AddWithValue("@Username", UsernameInput.Text);
                     sqlCmd.Parameters.AddWithValue("@Password", PasswordInput.Password);
                     int count = Convert.ToInt32(sqlCmd.ExecuteScalar());
-                    //System.Windows.Forms.MessageBox.Show("Database communication successful.");
+
                     if (count == 1)
                     {
-                        // System.Windows.Forms.MessageBox.Show("Username or password accepted.");
-                        //Properties.Settings.Default["LoggedInUserName"] = UsernameInput.Text;
-                        //Properties.Settings.Default.Save(); // Saves settings in application configuration file
+                        Properties.Settings.Default.CurrentUserName = UsernameInput.Text;
                         MainWindow dashboard = new MainWindow();
                         dashboard.Show();
                         this.Close();
@@ -126,37 +113,65 @@ namespace IdeasManager
                 finally
                 {
                     sqlConnection.Close();
-                    // this.Close();
                 }
             }
             else if (LoginButton.Content.ToString() == "Register")
             {
-                if (sqlConnection.State == ConnectionState.Closed)
+                if (PasswordInput.Password != PasswordConfirm.Password)
                 {
-                    sqlConnection.Open();
+                    MessageBox.Show("Passwords do not match.");
                 }
-                try
+
+                else
                 {
-                    // If Author already exists, get ID, add AuthorID + BookID to BookAuthor table. Lol
-                    // Otherwise add new AuthorID & Book ID to table.
-                    string authorQuery = "insert into tblUser values (@UserName, @Password)";
-                    SqlCommand sqlCommand = new SqlCommand(authorQuery, sqlConnection);
-                    sqlCommand.Parameters.AddWithValue("@UserName", UsernameInput.Text);
-                    sqlCommand.Parameters.AddWithValue("@Password", PasswordInput.Password);
-                    sqlCommand.ExecuteScalar();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Something went wrong..." + ex.ToString());
-                }
-                finally
-                {
-                    sqlConnection.Close();
-                    MessageBox.Show("Thanks for registering. You may now log in using the details you've provided.");
-                    chkRegister.Visibility = Visibility.Hidden;
-                    PasswordConfirm.Visibility = Visibility.Hidden;
-                    ConfirmPassword.Visibility = Visibility.Hidden;
-                    LoginButton.Content = "Log In";
+                    if (sqlConnection.State == ConnectionState.Closed)
+                    {
+                        sqlConnection.Open();
+                    }
+
+                    SqlCommand check_User_Name = new SqlCommand("SELECT COUNT(*) FROM tblUser WHERE ([UserName] = @UserName)", sqlConnection);
+                    check_User_Name.Parameters.AddWithValue("@UserName", UsernameInput.Text);
+                    int UserExist = (int)check_User_Name.ExecuteScalar();
+
+                    if (UserExist > 0)
+                    {
+                        MessageBox.Show("This username already exists.\nPlease use a different username.");
+                    }
+                    else
+                    {
+                        if (sqlConnection.State == ConnectionState.Closed)
+                        {
+                            sqlConnection.Open();
+                        }
+                        try
+                        {
+
+                            string createNewUserQuery = "insert into tblUser values (@UserName, @Password); insert into NoteData values (@UserName, @NoteTitle, @Note)";
+                            //string createNewUserTableQuery = "insert into NoteData values (@UserName, @NoteTitle, @Note)";
+                            SqlCommand sqlCommand = new SqlCommand(createNewUserQuery, sqlConnection);
+                            //SqlCommand sqlCommand2 = new SqlCommand(createNewUserTableQuery, sqlConnection);
+                            sqlCommand.Parameters.AddWithValue("@UserName", UsernameInput.Text);
+                            sqlCommand.Parameters.AddWithValue("@Password", PasswordInput.Password);
+                            //sqlCommand.Parameters.AddWithValue("@UserName", UsernameInput.Text);
+                            sqlCommand.Parameters.AddWithValue("@NoteTitle", "Example Note");
+                            sqlCommand.Parameters.AddWithValue("@Note", "This is an example note, write all your ideas in here, then use the save button below. Your notes will appear in the menu to the left.");
+                            sqlCommand.ExecuteScalar();
+                            //sqlCommand2.ExecuteScalar();
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Something went wrong..." + ex.ToString());
+                        }
+                        finally
+                        {
+                            sqlConnection.Close();
+                            MessageBox.Show("Thanks for registering. You may now log in using the details you've provided.");
+                            chkRegister.Visibility = Visibility.Hidden;
+                            PasswordConfirm.Visibility = Visibility.Hidden;
+                            ConfirmPassword.Visibility = Visibility.Hidden;
+                            LoginButton.Content = "Log In";
+                        }
+                    }
                 }
             }
         }

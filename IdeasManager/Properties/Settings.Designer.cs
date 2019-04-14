@@ -34,12 +34,15 @@ namespace IdeasManager.Properties {
             }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("temp")]
-        public string LoggedInUserName {
+        [global::System.Configuration.DefaultSettingValueAttribute("Anonymous")]
+        public string CurrentUserName {
             get {
-                return ((string)(this["LoggedInUserName"]));
+                return ((string)(this["CurrentUserName"]));
+            }
+            set {
+                this["CurrentUserName"] = value;
             }
         }
     }

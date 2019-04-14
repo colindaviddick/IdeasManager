@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace IdeasManager
 {
     // Things that need looked at:
-    // I need to be able to delete entries
     // The table needs to resize with the window
     // Colour scheme could do with being changable.
-    // Auto select the Title when the New Note button is hit.
-    // Find out how to create new lines in the textbox. DONE
+    // ADD OR UPDATE ENTRY, should be simple to do.
 
     //  Code for validating entry:
 
@@ -22,14 +20,14 @@ namespace IdeasManager
     // INSERT INTO Users(FirstName, LastName) VALUES('John', 'Smith')
     // END
 
-        // Settings.Default["SomeProperty"] = "Some Value";
-        // Settings.Default.Save(); // Saves settings in application configuration file
-
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+        bool newNote = false;
+        int currentNoteNumber = 0;
+
         Random r = new Random();
 
         readonly SqlConnection sqlConnection;
@@ -37,7 +35,7 @@ namespace IdeasManager
         public MainWindow()
         {
             InitializeComponent();
-
+            Save_Button.IsEnabled = false;
             string connectionString = (@"Data Source=COLIN\SQLMAIN;Initial Catalog=TestLoginCredentials;Persist Security Info=True;User ID=sa;Password=Thr33four");
             sqlConnection = new SqlConnection(connectionString);
             ShowAllNotes();
@@ -50,9 +48,30 @@ namespace IdeasManager
                 sqlConnection.Open();
             }
 
+            SqlCommand areThereAnyNotes = new SqlCommand("SELECT COUNT(*) FROM NoteData WHERE UserName = '" + Properties.Settings.Default.CurrentUserName + "'", sqlConnection);
+            int numberOfNotes = (int)areThereAnyNotes.ExecuteScalar();
+
+            if (numberOfNotes == 0)
+            {
+                var brush = new ImageBrush();
+                brush.ImageSource = new BitmapImage(new Uri("NoteListBG.png", UriKind.Relative));
+                brush.TileMode = TileMode.None;
+                brush.Stretch = Stretch.Uniform;
+                NoteList.Background = brush;
+                sqlConnection.Close();
+
+            }
+
+            // This may need work, 
+
+            else
+            {
+                NoteList.Background = Brushes.PaleTurquoise;
+            }
+
             try
             {
-                string query = "SELECT * FROM NoteData ORDER BY NoteTitle";
+                string query = "SELECT * FROM NoteData where Username = '" + Properties.Settings.Default.CurrentUserName + "' ORDER BY NoteTitle";
 
                 SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
                 SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(query, sqlConnection);
@@ -80,54 +99,37 @@ namespace IdeasManager
 
         private void NoteList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            NoteSpace.Background = Brushes.LightBlue;
-            Announcement.Text = "Blue sky thinking... This idea has been locked away for later.";
-
-            Brush brush = new SolidColorBrush(Color.FromRgb((byte)r.Next(180, 230), (byte)r.Next(180, 230), (byte)r.Next(180, 230)));
-            NoteList.Background = brush;
-
+            Save_Button.IsEnabled = true;
+            newNote = false;
 
             if (sqlConnection.State == ConnectionState.Closed)
             {
                 sqlConnection.Open();
             }
-
+            #region
+            #endregion
             try
             {
-                string query = "select Note from NoteData where NoteTitle = @NoteList";
-                string query2 = "select NoteTitle from NoteData where NoteTitle = @NoteList";
+                string query = "select Note from NoteData where NoteTitle = @NoteList; select NoteTitle from NoteData where NoteTitle = @NoteList";
 
                 SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
-                SqlCommand sqlCommand2 = new SqlCommand(query2, sqlConnection);
-                // the SqlDataAdapter can be imagined like an Interface to make Tables usable by C#-Objects
                 SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommand);
-                SqlDataAdapter sqlDataAdapter2 = new SqlDataAdapter(sqlCommand2);
-
+            
                 using (sqlDataAdapter)
                 {
                     sqlCommand.Parameters.AddWithValue("@NoteList", NoteList.SelectedValue);
-
                     DataTable NotePad = new DataTable();
-
                     sqlDataAdapter.Fill(NotePad);
-
-                    NoteSpace.Text = NotePad.Rows[0]["Note"].ToString();
-                }
-                using (sqlDataAdapter2)
-                {
-                    sqlCommand2.Parameters.AddWithValue("@NoteList", NoteList.SelectedValue);
-
-                    DataTable NotePad = new DataTable();
-
-                    sqlDataAdapter2.Fill(NotePad);
-
                     NoteName.Text = NotePad.Rows[0]["NoteTitle"].ToString();
+                    DataTable NoteHeader = new DataTable();
+                    sqlDataAdapter.Fill(NoteHeader);
+                    NoteSpace.Text = NoteHeader.Rows[0]["Note"].ToString();
                 }
             }
-            catch (Exception e2)
-            {
-                // MessageBox.Show("Error: " + e2);
-            }
+            //catch (Exception e2)
+            //{
+            //    // MessageBox.Show("Error: " + e2);
+            //}
             finally
             {
                 sqlConnection.Close();
@@ -138,9 +140,11 @@ namespace IdeasManager
         {
             NoteName.Text = "New Title";
             NoteSpace.Text = "New Note";
+            newNote = true;
             NoteSpace.Background = Brushes.LightGreen;
             Save_Button.Background = Brushes.Green;
-            Announcement.Text = "The background has turned green to denote a new Idea, remember to save it if you want it to be kept.";
+            Save_Button.IsEnabled = true;
+            Save_Button.Content = "Save";
             NoteName.Focus();
             NoteName.SelectAll();
         }
@@ -161,33 +165,66 @@ namespace IdeasManager
             }
             else if (NoteName.Text != "" && NoteSpace.Text != "")
             {
-                try
+                if (newNote)
                 {
-                    // Select from BLAH BLAH BLAH
-                    // Do that
-                    // If Result = > 0
-                    // Check if you want to save
-                    // Else create new... ???????????
+                    try
+                    {
+                        // Select from BLAH BLAH BLAH
+                        // Do that
+                        // If Result = > 0
+                        // Check if you want to save
+                        // Else create new... ???????????
 
-                    string query = "SELECT FROM NoteData WHERE NoteTitle = @NoteTitle; IF @@Rowcount = 0 INSERT INTO NoteData VALUES (@UserName, @NoteTitle, @Note)";
-                    SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
-                    sqlConnection.Open();
-                    sqlCommand.Parameters.AddWithValue("UserName", "Colin");
-                    sqlCommand.Parameters.AddWithValue("@NoteTitle", NoteName.Text);
-                    sqlCommand.Parameters.AddWithValue("@Note", NoteSpace.Text);
-                    sqlCommand.ExecuteScalar();
+                        string query = "SELECT * FROM NoteData WHERE NoteTitle = @NoteTitle; IF @@Rowcount = 0 INSERT INTO NoteData VALUES (@UserName, @NoteTitle, @Note)";
+                        SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+                        sqlConnection.Open();
+                        sqlCommand.Parameters.AddWithValue("@UserName", Properties.Settings.Default.CurrentUserName);
+                        sqlCommand.Parameters.AddWithValue("@NoteTitle", NoteName.Text);
+                        sqlCommand.Parameters.AddWithValue("@Note", NoteSpace.Text);
+                        sqlCommand.ExecuteScalar();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Note saving error: " + ex.ToString());
+                    }
+                    finally
+                    {
+                        sqlConnection.Close();
+                        NoteSpace.Background = Brushes.LightBlue;
+                        Announcement.Text = "Idea saved! That sounds like a good one!";
+                        ShowAllNotes();
+                    }
                 }
-                catch (Exception ex)
+
+                else
                 {
-                    MessageBox.Show("AddAnimal" + ex.ToString());
+                    try
+                    {
+                        // This won't do anything but could come in useful... "Update NoteData Set NoteTitle = @NoteTitle, Note= @Note"
+
+                        // I think I need to save the Note Id PK, then query & update that...(After checking with the user...)
+                        string query = "UPDATE NoteData SET NoteTitle = @NoteTitle IF ";
+                        SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+                        sqlConnection.Open();
+                        sqlCommand.Parameters.AddWithValue("@UserName", Properties.Settings.Default.CurrentUserName);
+                        sqlCommand.Parameters.AddWithValue("@NoteTitle", NoteName.Text);
+                        sqlCommand.Parameters.AddWithValue("@Note", NoteSpace.Text);
+                        sqlCommand.ExecuteScalar();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Updating note error: " + ex.ToString());
+                    }
+                    finally
+                    {
+                        sqlConnection.Close();
+                        NoteSpace.Background = Brushes.LightBlue;
+                        Announcement.Text = "Idea saved! That sounds like a good one!";
+                        ShowAllNotes();
+                    }
                 }
-                finally
-                {
-                    sqlConnection.Close();
-                    NoteSpace.Background = Brushes.LightBlue;
-                    Announcement.Text = "Idea saved! That sounds like a good one!";
-                    ShowAllNotes();
-                }
+
+
             }
             else
             {
@@ -222,7 +259,6 @@ namespace IdeasManager
                     {
                         sqlConnection.Close();
                         NoteList.SelectedIndex--;
-                        //New_Button_Click(sender, e);
                         ShowAllNotes();
                     }
                 }
@@ -233,45 +269,11 @@ namespace IdeasManager
             }
         }
 
-        //Start of code to change window colour theme.
-        private void ColourSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (ComboBoxItem.IsSelectedProperty.ToString().Equals("Aqua"))
-            {
-                IdeasWindow.Background = Brushes.Aqua;
-                NoteList.Background = Brushes.Aquamarine;
-                New.Background = Brushes.Crimson;
-                Delete.Background = Brushes.Green;
-            }
-            else if (ComboBoxItem.IsSelectedProperty.Equals("Cool White"))
-            {
-                IdeasWindow.Background = Brushes.Fuchsia;
-                NoteList.Background = Brushes.Orange;
-                New.Background = Brushes.Crimson;
-                Delete.Background = Brushes.Green;
-            }
-            else if (ComboBoxItem.IsSelectedProperty.Equals("Nightmode"))
-            {
-                IdeasWindow.Background = Brushes.Green;
-                NoteList.Background = Brushes.Purple;
-                New.Background = Brushes.Crimson;
-                Delete.Background = Brushes.Green;
-            }
-            else if (ComboBoxItem.IsSelectedProperty.Equals("Default"))
-            {
-                IdeasWindow.Background = Brushes.Red;
-                NoteList.Background = Brushes.DarkCyan;
-                New.Background = Brushes.Crimson;
-                Delete.Background = Brushes.Green;
-            }
-        }
-
         private void NoteSpace_TextChanged(object sender, TextChangedEventArgs e)
         {
-            string user = Properties.Settings.Default.LoggedInUserName;
-            Announcement.Text = user;
-
-            //if(NoteName.Text.ToString() != "New Title" && NoteSpace.Text.ToString() != "New Note")
+            string noteHeading = Properties.Settings.Default.CurrentUserName + "'s Notes";
+            Notes.Content = noteHeading;
+            //if (NoteName.Text.ToString() != "New Title" && NoteSpace.Text.ToString() != "New Note")
             //{
             //    Save_Button.IsEnabled = true;
             //}
@@ -279,16 +281,6 @@ namespace IdeasManager
             //{
             //    Save_Button.IsEnabled = false;
             //}
-        }
-
-        private void Save_Button_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-
-        }
-
-        private void New_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            Announcement.Text = "Click here when you've conjured up another award winning idea!";
         }
 
         private void Delete_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
@@ -301,12 +293,16 @@ namespace IdeasManager
             if (NoteName.Text == "New Title" || NoteSpace.Text == "New Note")
             {
                 Announcement.Text = "You need to change the title and content of your idea before you can save.";
-                //  Save_Button.IsEnabled = false;
+                //Save_Button.IsEnabled = false;
             }
 
-            if (NoteName.Text != "New Title" && NoteSpace.Text != "New Note")
+            if (newNote)
             {
-                // Save_Button.IsEnabled = true;
+                Save_Button.Content = "Save";
+            }
+            else
+            {
+                Save_Button.Content = "Update Note";
             }
         }
 
@@ -314,6 +310,11 @@ namespace IdeasManager
         {
             AboutPage aboutPage = new AboutPage();
             aboutPage.Show();
+        }
+
+        private void Refresh_Click(object sender, RoutedEventArgs e)
+        {
+            ShowAllNotes();
         }
     }
 }

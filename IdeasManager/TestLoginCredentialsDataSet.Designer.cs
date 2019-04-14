@@ -10,9 +10,10 @@
 
 #pragma warning disable 1591
 
-namespace IdeasManager {
-    
-    
+namespace IdeasManager
+{
+
+
     /// <summary>
     ///Represents a strongly typed in-memory cache of data.
     ///</summary>
@@ -1059,9 +1060,10 @@ namespace IdeasManager {
         }
     }
 }
-namespace IdeasManager.TestLoginCredentialsDataSetTableAdapters {
-    
-    
+namespace IdeasManager.TestLoginCredentialsDataSetTableAdapters
+{
+
+
     /// <summary>
     ///Represents the connection and commands used to retrieve and save data.
     ///</summary>

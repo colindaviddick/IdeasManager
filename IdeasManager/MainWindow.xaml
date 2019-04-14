@@ -5,41 +5,40 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IdeasManager"
         mc:Ignorable="d"
-        Title="Ideas Manager" Name="IdeasWindow" Height="450" Width="800" WindowStartupLocation="CenterScreen" WindowState="Maximized" Background="PaleTurquoise">
+        Title="Ideas Manager" Name="IdeasWindow" Height="800" Width="800" WindowStartupLocation="CenterScreen" WindowState="Maximized" Background="PaleTurquoise">
 
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center" MinHeight="300">
+    <Grid HorizontalAlignment="Stretch" MinHeight="300">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Name="SidePanel" Width="1*"/>
+            <ColumnDefinition Name="SidePanel" Width="1*" MinWidth="150"/>
             <ColumnDefinition Name="MainPanel" Width="4*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Name="FullWindow" Height="1*"/>
+            <RowDefinition Name="FullWindow" Height="*"/>
             <RowDefinition Name="Buttons" Height="30"/>
             <RowDefinition Name="Footer" Height="30"/>
         </Grid.RowDefinitions>
-        <Label Grid.Column="0" Grid.Row="0" Content="Notes" FontWeight="DemiBold" VerticalAlignment="top" Height="30"/>
-        <ListBox Grid.Column="0" Grid.Row="0" Margin="0 30 0 0" Name="NoteList" AllowDrop="True" VerticalAlignment="Stretch" SelectionChanged="NoteList_SelectionChanged" ScrollViewer.VerticalScrollBarVisibility="Visible"/>
+        <Label Name="Notes" Grid.Column="0" Grid.Row="0" Content="Notes" FontWeight="DemiBold" VerticalAlignment="top" Height="30"/>
+        <ListBox Grid.Column="0" Grid.Row="0" Margin="0 30 0 0" Name="NoteList" AllowDrop="True" SelectionChanged="NoteList_SelectionChanged" ScrollViewer.VerticalScrollBarVisibility="Visible">
+            <ListBox.Background>
+                <ImageBrush ImageSource="NoteListBG.png" Stretch="Uniform"/>
+            </ListBox.Background>
+        </ListBox>
 
         <!-- Connect to database for info -->
         <TextBox Grid.Column="1" Grid.Row="0" Name="NoteName" Margin="5" VerticalAlignment="Top" AutoWordSelection="True" TextAlignment="Center" FontWeight="Bold" Height="20" TextChanged="NoteName_TextChanged"/>
         <!-- Set the below Textbox to RichTextBox later, I want to be able to edit the text and add things like bulletpoints, highlighting, bold etc. -->
-        <TextBox Grid.Column="1" Grid.Row="0" Margin="0 30 0 0" Name="NoteSpace" AutoWordSelection="True" MinHeight="400" AcceptsReturn="True" AcceptsTab="True" Text="&#xA;&#x9;Set this box to Rich Text and fix errors.&#xA;&#xA;&#x9;Create Login system &amp; limit note list by user." TextChanged="NoteSpace_TextChanged"/>
+        <TextBox Grid.Column="1" Grid.Row="0" Margin="0 30 0 0" Name="NoteSpace" AutoWordSelection="True" MinHeight="400" AcceptsReturn="True" AcceptsTab="True" Text="&#xA;&#x9;Set this box to Rich Text and fix errors.&#xA;&#xA;&#x9;" TextChanged="NoteSpace_TextChanged"/>
 
         <DockPanel Grid.Column="0" Grid.Row="1">
             <Button Name="Delete" Content="Delete" VerticalAlignment="Bottom" Margin="5" HorizontalAlignment="Stretch" Click="Delete_Button_Click" MouseEnter="Delete_MouseEnter"/>
-            <Button Name="New" Content="New" VerticalAlignment="Bottom" Margin="5" HorizontalAlignment="Stretch" Click="New_Button_Click" MouseEnter="New_MouseEnter"/>
+            <Button Name="New" Content="New" VerticalAlignment="Bottom" Margin="5" HorizontalAlignment="Stretch" Click="New_Button_Click"/>
+            <Button Name="Refresh" Content="Refresh" VerticalAlignment="Bottom" Margin="5" HorizontalAlignment="Stretch" Click="Refresh_Click"/>
         </DockPanel>
         <DockPanel Grid.Column="1" Grid.Row="1">
-            <Button Name="Save_Button" Content="Save" Margin="5" Click="Save_Button_Click" MouseEnter="Save_Button_MouseEnter"/>
+            <Button Name="Save_Button" Content="Save" Margin="5" Click="Save_Button_Click"/>
         </DockPanel>
-        <ComboBox Grid.Column="0" Grid.Row="3" Name="ColourSelector" SelectionChanged="ColourSelector_SelectionChanged" Margin="5" ToolTip="This isn't working at the moment." Text="Not Working">
-            <ComboBoxItem>Aqua</ComboBoxItem>
-            <ComboBoxItem>Cool White</ComboBoxItem>
-            <ComboBoxItem>Default</ComboBoxItem>
-            <ComboBoxItem>Nightmode</ComboBoxItem>
-        </ComboBox>
         <DockPanel Grid.Column="1" Grid.Row="2">
-            <TextBlock Name="Announcement" Grid.Row="2" HorizontalAlignment="Stretch" TextWrapping="Wrap" Text=" " VerticalAlignment="Stretch" Height="Auto" Width="Auto"/>
+            <TextBlock Name="Announcement" Grid.Row="2" HorizontalAlignment="Stretch" TextWrapping="Wrap" Text="Time to start creating!" VerticalAlignment="Stretch" Height="Auto" Width="Auto"/>
             <Button Name="About" Content="About" Margin="5" Click="About_Click" Width="70" HorizontalAlignment="Right"/>
         </DockPanel>
     </Grid>

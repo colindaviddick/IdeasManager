@@ -10,8 +10,8 @@
 &lt;/SerializableConnectionString&gt;</DesignTimeValue>
       <Value Profile="(Default)">Data Source=COLIN\SQLMAIN;Initial Catalog=TestLoginCredentials;Persist Security Info=True;User ID=sa;Password=Thr33four</Value>
     </Setting>
-    <Setting Name="LoggedInUserName" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">temp</Value>
+    <Setting Name="CurrentUserName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Anonymous</Value>
     </Setting>
   </Settings>
 </SettingsFile>

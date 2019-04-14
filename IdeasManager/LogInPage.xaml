@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IdeasManager"
         mc:Ignorable="d"
-        Title="LogInPage" Height="450" Width="800" KeyDown="Window_KeyDown" GotKeyboardFocus="Window_GotKeyboardFocus" Background="GhostWhite">
+        Title="LogInPage" Height="450" Width="800" KeyDown="Window_KeyDown" GotKeyboardFocus="Window_GotKeyboardFocus" Background="GhostWhite" WindowState="Maximized" WindowStartupLocation="CenterScreen">
     <Grid>
         <Border CornerRadius="200" Background="PaleVioletRed" VerticalAlignment="Center" HorizontalAlignment="Center" Width="400" Height="400">
             <Border CornerRadius="150" Background="DarkTurquoise" VerticalAlignment="Center" HorizontalAlignment="Center" Height="300" Width="300">
