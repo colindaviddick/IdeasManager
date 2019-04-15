@@ -9,8 +9,6 @@ using System.Windows.Media.Imaging;
 namespace IdeasManager
 {
     // Things that need looked at:
-    // The table needs to resize with the window
-    // Colour scheme could do with being changable.
     // ADD OR UPDATE ENTRY, should be simple to do.
 
     //  Code for validating entry:
@@ -25,10 +23,10 @@ namespace IdeasManager
     /// </summary>
     public partial class MainWindow : Window
     {
-        bool newNote = false;
-        int currentNoteNumber = 0;
+        //        int currentNoteNumber = 0;
 
         Random r = new Random();
+        bool newNote = true;
 
         readonly SqlConnection sqlConnection;
 
@@ -100,36 +98,34 @@ namespace IdeasManager
         private void NoteList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Save_Button.IsEnabled = true;
-            newNote = false;
 
             if (sqlConnection.State == ConnectionState.Closed)
             {
                 sqlConnection.Open();
             }
-            #region
-            #endregion
+
             try
             {
                 string query = "select Note from NoteData where NoteTitle = @NoteList; select NoteTitle from NoteData where NoteTitle = @NoteList";
 
                 SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
                 SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommand);
-            
+
                 using (sqlDataAdapter)
                 {
                     sqlCommand.Parameters.AddWithValue("@NoteList", NoteList.SelectedValue);
+                    //DataTable NoteHeader = new DataTable();
+                    //sqlDataAdapter.Fill(NoteHeader);
+                    this.NoteName.Text = NoteList.SelectedValue.ToString();
                     DataTable NotePad = new DataTable();
                     sqlDataAdapter.Fill(NotePad);
-                    NoteName.Text = NotePad.Rows[0]["NoteTitle"].ToString();
-                    DataTable NoteHeader = new DataTable();
-                    sqlDataAdapter.Fill(NoteHeader);
-                    NoteSpace.Text = NoteHeader.Rows[0]["Note"].ToString();
+                    NoteSpace.Text = NotePad.Rows[0]["Note"].ToString();
                 }
             }
-            //catch (Exception e2)
-            //{
-            //    // MessageBox.Show("Error: " + e2);
-            //}
+            catch (Exception e2)
+            {
+                MessageBox.Show("Error: " + e2);
+            }
             finally
             {
                 sqlConnection.Close();
@@ -140,7 +136,6 @@ namespace IdeasManager
         {
             NoteName.Text = "New Title";
             NoteSpace.Text = "New Note";
-            newNote = true;
             NoteSpace.Background = Brushes.LightGreen;
             Save_Button.Background = Brushes.Green;
             Save_Button.IsEnabled = true;
@@ -165,6 +160,37 @@ namespace IdeasManager
             }
             else if (NoteName.Text != "" && NoteSpace.Text != "")
             {
+                //if (newNote)
+                //{
+                //    try
+                //    {
+                //        // Select from BLAH BLAH BLAH
+                //        // Do that
+                //        // If Result = > 0
+                //        // Check if you want to save
+                //        // Else create new... ???????????
+
+                //        string query = "SELECT * FROM NoteData WHERE NoteTitle = @NoteTitle; IF @@Rowcount = 0 INSERT INTO NoteData VALUES (@UserName, @NoteTitle, @Note)";
+                //        SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+                //        sqlConnection.Open();
+                //        sqlCommand.Parameters.AddWithValue("@UserName", Properties.Settings.Default.CurrentUserName);
+                //        sqlCommand.Parameters.AddWithValue("@NoteTitle", NoteName.Text);
+                //        sqlCommand.Parameters.AddWithValue("@Note", NoteSpace.Text);
+                //        sqlCommand.ExecuteScalar();
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        MessageBox.Show("Note saving error: " + ex.ToString());
+                //    }
+                //    finally
+                //    {
+                //        sqlConnection.Close();
+                //        NoteSpace.Background = Brushes.LightBlue;
+                //        Announcement.Text = "Idea saved! That sounds like a good one!";
+                //        ShowAllNotes();
+                //    }
+                //}
+
                 if (newNote)
                 {
                     try
@@ -251,10 +277,10 @@ namespace IdeasManager
                         sqlCommand.Parameters.AddWithValue("@NoteList", NoteList.SelectedValue);
                         sqlCommand.ExecuteScalar();
                     }
-                    catch (Exception ex)
-                    {
-                        //MessageBox.Show("Deleting note error:" + ex.ToString());
-                    }
+                    //catch (Exception ex)
+                    //{
+                    //    MessageBox.Show("Deleting note error:" + ex.ToString());
+                    //}
                     finally
                     {
                         sqlConnection.Close();
@@ -273,14 +299,6 @@ namespace IdeasManager
         {
             string noteHeading = Properties.Settings.Default.CurrentUserName + "'s Notes";
             Notes.Content = noteHeading;
-            //if (NoteName.Text.ToString() != "New Title" && NoteSpace.Text.ToString() != "New Note")
-            //{
-            //    Save_Button.IsEnabled = true;
-            //}
-            //else
-            //{
-            //    Save_Button.IsEnabled = false;
-            //}
         }
 
         private void Delete_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
@@ -293,7 +311,6 @@ namespace IdeasManager
             if (NoteName.Text == "New Title" || NoteSpace.Text == "New Note")
             {
                 Announcement.Text = "You need to change the title and content of your idea before you can save.";
-                //Save_Button.IsEnabled = false;
             }
 
             if (newNote)
