@@ -87,7 +87,7 @@ namespace IdeasManager
             }
             catch (Exception e)
             {
-                MessageBox.Show("Error: " + e);
+                //MessageBox.Show("Error: " + e);
             }
             finally
             {
@@ -107,7 +107,6 @@ namespace IdeasManager
             try
             {
                 string query = "select Note from NoteData where NoteTitle = @NoteList; select NoteTitle from NoteData where NoteTitle = @NoteList";
-
                 SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
                 SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommand);
 
@@ -124,7 +123,7 @@ namespace IdeasManager
             }
             catch (Exception e2)
             {
-                MessageBox.Show("Error: " + e2);
+                //MessageBox.Show("Error: " + e2);
             }
             finally
             {
@@ -146,7 +145,21 @@ namespace IdeasManager
 
         private void Save_Button_Click(object sender, RoutedEventArgs e)
         {
-            if (NoteName.Text == "New Title" && NoteSpace.Text == "New Note")
+            if (sqlConnection.State == ConnectionState.Closed)
+            {
+                sqlConnection.Open();
+            }
+
+            SqlCommand uniqueTitleCheck = new SqlCommand("SELECT COUNT(*) FROM NoteData WHERE UserName = '" + Properties.Settings.Default.CurrentUserName + "' AND NoteTitle = @NoteTitle", sqlConnection);
+            uniqueTitleCheck.Parameters.AddWithValue("@NoteTitle", NoteName.Text);
+            uniqueTitleCheck.ExecuteScalar();
+            int numberOfNotes = (int)uniqueTitleCheck.ExecuteScalar();
+
+            if (numberOfNotes != 0)
+            {
+                MessageBox.Show("This title has already been taken!");
+            }
+            else if (NoteName.Text == "New Title" && NoteSpace.Text == "New Note")
             {
                 MessageBox.Show("Worst. List. Ever. \nThat's seriously not worth saving.\n\nTry adding a title and some... Actual ideas to your list before trying to save.");
             }
@@ -160,97 +173,29 @@ namespace IdeasManager
             }
             else if (NoteName.Text != "" && NoteSpace.Text != "")
             {
-                //if (newNote)
-                //{
-                //    try
-                //    {
-                //        // Select from BLAH BLAH BLAH
-                //        // Do that
-                //        // If Result = > 0
-                //        // Check if you want to save
-                //        // Else create new... ???????????
-
-                //        string query = "SELECT * FROM NoteData WHERE NoteTitle = @NoteTitle; IF @@Rowcount = 0 INSERT INTO NoteData VALUES (@UserName, @NoteTitle, @Note)";
-                //        SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
-                //        sqlConnection.Open();
-                //        sqlCommand.Parameters.AddWithValue("@UserName", Properties.Settings.Default.CurrentUserName);
-                //        sqlCommand.Parameters.AddWithValue("@NoteTitle", NoteName.Text);
-                //        sqlCommand.Parameters.AddWithValue("@Note", NoteSpace.Text);
-                //        sqlCommand.ExecuteScalar();
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        MessageBox.Show("Note saving error: " + ex.ToString());
-                //    }
-                //    finally
-                //    {
-                //        sqlConnection.Close();
-                //        NoteSpace.Background = Brushes.LightBlue;
-                //        Announcement.Text = "Idea saved! That sounds like a good one!";
-                //        ShowAllNotes();
-                //    }
-                //}
-
-                if (newNote)
+                try
                 {
-                    try
-                    {
-                        // Select from BLAH BLAH BLAH
-                        // Do that
-                        // If Result = > 0
-                        // Check if you want to save
-                        // Else create new... ???????????
-
-                        string query = "SELECT * FROM NoteData WHERE NoteTitle = @NoteTitle; IF @@Rowcount = 0 INSERT INTO NoteData VALUES (@UserName, @NoteTitle, @Note)";
-                        SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
-                        sqlConnection.Open();
-                        sqlCommand.Parameters.AddWithValue("@UserName", Properties.Settings.Default.CurrentUserName);
-                        sqlCommand.Parameters.AddWithValue("@NoteTitle", NoteName.Text);
-                        sqlCommand.Parameters.AddWithValue("@Note", NoteSpace.Text);
-                        sqlCommand.ExecuteScalar();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Note saving error: " + ex.ToString());
-                    }
-                    finally
-                    {
-                        sqlConnection.Close();
-                        NoteSpace.Background = Brushes.LightBlue;
-                        Announcement.Text = "Idea saved! That sounds like a good one!";
-                        ShowAllNotes();
-                    }
+                    string query = "SELECT * FROM NoteData WHERE NoteTitle = @NoteTitle; IF @@Rowcount = 0 INSERT INTO NoteData VALUES (@UserName, @NoteTitle, @Note)";
+                    SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+                    //sqlConnection.Open();
+                    //MessageBox.Show("Checking that the command is launched...");
+                    sqlCommand.Parameters.AddWithValue("@UserName", Properties.Settings.Default.CurrentUserName);
+                    sqlCommand.Parameters.AddWithValue("@NoteTitle", NoteName.Text);
+                    sqlCommand.Parameters.AddWithValue("@Note", NoteSpace.Text);
+                    sqlCommand.ExecuteScalar();
+                    //MessageBox.Show("Checking that ExecuteScalar command is launched...");
                 }
-
-                else
+                catch (Exception ex)
                 {
-                    try
-                    {
-                        // This won't do anything but could come in useful... "Update NoteData Set NoteTitle = @NoteTitle, Note= @Note"
-
-                        // I think I need to save the Note Id PK, then query & update that...(After checking with the user...)
-                        string query = "UPDATE NoteData SET NoteTitle = @NoteTitle IF ";
-                        SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
-                        sqlConnection.Open();
-                        sqlCommand.Parameters.AddWithValue("@UserName", Properties.Settings.Default.CurrentUserName);
-                        sqlCommand.Parameters.AddWithValue("@NoteTitle", NoteName.Text);
-                        sqlCommand.Parameters.AddWithValue("@Note", NoteSpace.Text);
-                        sqlCommand.ExecuteScalar();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Updating note error: " + ex.ToString());
-                    }
-                    finally
-                    {
-                        sqlConnection.Close();
-                        NoteSpace.Background = Brushes.LightBlue;
-                        Announcement.Text = "Idea saved! That sounds like a good one!";
-                        ShowAllNotes();
-                    }
+                    //MessageBox.Show("Note saving error: " + ex.ToString());
                 }
-
-
+                finally
+                {
+                    sqlConnection.Close();
+                    NoteSpace.Background = Brushes.LightBlue;
+                    Announcement.Text = "Idea saved! That sounds like a good one!";
+                    ShowAllNotes();
+                }
             }
             else
             {
