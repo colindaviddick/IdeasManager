@@ -1,0 +1,7 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:IdeasManager">
+    
+        <FontFamily x:Key="FontAwesome">/IdeasManager;component/Assets/Fonts/FontAwesome.otf#Font Awesome 5 Free Solid</FontFamily>
+
+</ResourceDictionary>

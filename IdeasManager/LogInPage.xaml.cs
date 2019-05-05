@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using MessageBox = System.Windows.MessageBox;
 namespace IdeasManager
 {
@@ -20,29 +21,31 @@ namespace IdeasManager
             string connectionString = (@"Data Source=COLIN\SQLMAIN;Initial Catalog=TestLoginCredentials;Persist Security Info=True;User ID=sa;Password=Thr33four");
             SqlConnection sqlConnection = new SqlConnection(connectionString);
             InitializeComponent();
+            UsernameInput.Focus();
+            UsernameInput.Text = Properties.Settings.Default.CurrentUserName;
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            LoginButton.Content = "Register";
+            LoginButton.Content = "users Register";
             PasswordInput.Background = Brushes.LightPink;
             PasswordConfirm.Visibility = Visibility.Visible;
             ConfirmPassword.Visibility = Visibility.Visible;
             LoginButton.Background = Brushes.LightPink;
-            UsernameHeading.Content = "New Username";
-            PasswordHeading.Content = "New Password";
+            UsernameHeading.Content = "User";
+            PasswordHeading.Content = "unlock";
             LoginButton.FontWeight = FontWeights.Bold;
         }
 
         private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
-            LoginButton.Content = "Log In";
+            LoginButton.Content = "users Log In";
             PasswordInput.Background = Brushes.GhostWhite;
             PasswordConfirm.Visibility = Visibility.Collapsed;
             ConfirmPassword.Visibility = Visibility.Collapsed;
             LoginButton.Background = Brushes.GhostWhite;
-            UsernameHeading.Content = "Username";
-            PasswordHeading.Content = "Password";
+            UsernameHeading.Content = "User";
+            PasswordHeading.Content = "unlock";
             LoginButton.FontWeight = FontWeights.Normal;
         }
 
@@ -51,24 +54,48 @@ namespace IdeasManager
             if (System.Windows.Forms.Control.IsKeyLocked(Keys.CapsLock))
             {
                 CapsCheck.Visibility = Visibility.Visible;
+                Jim.Background = Brushes.Red;
+                Bob.Background = Brushes.Green;
             }
             else
             {
                 // System.Windows.MessageBox.Show("The Caps Lock key is OFF.");
                 CapsCheck.Visibility = Visibility.Collapsed;
+                Jim.Background = Brushes.DarkTurquoise;
+                Bob.Background = Brushes.PaleVioletRed;
             }
         }
 
         private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if (System.Windows.Forms.Control.IsKeyLocked(Keys.CapsLock))
+            if (e.Key == Key.Return || e.Key == Key.Enter)
             {
-                CapsCheck.Visibility = Visibility.Visible;
+                if (UsernameInput.IsFocused)
+                {
+                    PasswordInput.Focus();
+                }
+                else if (PasswordInput.IsFocused)
+                {
+                    LoginButton.Focus();
+                    SendKeys.SendWait("{Enter}");
+                }
             }
+
             else
             {
-                // System.Windows.MessageBox.Show("The Caps Lock key is OFF.");
-                CapsCheck.Visibility = Visibility.Collapsed;
+                if (System.Windows.Forms.Control.IsKeyLocked(Keys.CapsLock))
+                {
+                    CapsCheck.Visibility = Visibility.Visible;
+                    Jim.Background = Brushes.Red;
+                    Bob.Background = Brushes.Green;
+                }
+                else
+                {
+                    // System.Windows.MessageBox.Show("The Caps Lock key is OFF.");
+                    CapsCheck.Visibility = Visibility.Collapsed;
+                    Jim.Background = Brushes.DarkTurquoise;
+                    Bob.Background = Brushes.PaleVioletRed;
+                }
             }
         }
 
@@ -77,11 +104,10 @@ namespace IdeasManager
             string connectionString = (@"Data Source=COLIN\SQLMAIN;Initial Catalog=TestLoginCredentials;Persist Security Info=True;User ID=sa;Password=Thr33four");
             SqlConnection sqlConnection = new SqlConnection(connectionString);
 
-            if (LoginButton.Content.ToString() == "Log In")
+            if (LoginButton.Content.ToString() == "users Log In")
             {
                 try
                 {
-
                     if (sqlConnection.State == ConnectionState.Closed)
                     {
                         sqlConnection.Open();
@@ -97,6 +123,7 @@ namespace IdeasManager
                     if (count == 1)
                     {
                         Properties.Settings.Default.CurrentUserName = UsernameInput.Text;
+                        Properties.Settings.Default.Save();
                         MainWindow dashboard = new MainWindow();
                         dashboard.Show();
                         this.Close();
@@ -115,7 +142,7 @@ namespace IdeasManager
                     sqlConnection.Close();
                 }
             }
-            else if (LoginButton.Content.ToString() == "Register")
+            else if (LoginButton.Content.ToString() == "users Register")
             {
                 if (PasswordInput.Password != PasswordConfirm.Password)
                 {
@@ -169,11 +196,30 @@ namespace IdeasManager
                             chkRegister.Visibility = Visibility.Hidden;
                             PasswordConfirm.Visibility = Visibility.Hidden;
                             ConfirmPassword.Visibility = Visibility.Hidden;
-                            LoginButton.Content = "Log In";
+                            LoginButton.Content = "users Log In";
                         }
                     }
                 }
             }
         }
+
+        //private void UsernameInput_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        //{
+        //    if (e.Key == Key.Return || e.Key == Key.Enter)
+        //    {
+        //        PasswordInput.Focus();
+        //    }
+        //}
+
+        //private void PasswordConfirm_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        //{
+        //    if (e.Key == Key.Return || e.Key == Key.Enter)
+        //    {
+
+        //        // Doesn't work... Problem due to duplication of sender & e?
+        //        MessageBox.Show("lajflasj");
+        //        //LoginButton_Click();
+        //    }
+        //}
     }
 }

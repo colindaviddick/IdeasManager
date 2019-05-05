@@ -5,20 +5,22 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IdeasManager"
         mc:Ignorable="d"
-        Title="Ideas Manager" Name="IdeasWindow" Height="800" Width="800" WindowStartupLocation="CenterScreen" WindowState="Maximized" Background="PaleTurquoise">
+        Title="Ideas Manager" Name="IdeasWindow" Height="800" Width="800" WindowStartupLocation="CenterScreen" WindowState="Maximized" Background="PaleTurquoise" >
 
     <Grid HorizontalAlignment="Stretch" MinHeight="300">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Name="SidePanel" Width="1*" MinWidth="150"/>
             <ColumnDefinition Name="MainPanel" Width="4*"/>
+            <ColumnDefinition Name="IconPanel" Width="0.6*" MinWidth="40"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Name="FullWindow" Height="*"/>
             <RowDefinition Name="Buttons" Height="30"/>
             <RowDefinition Name="Footer" Height="30"/>
         </Grid.RowDefinitions>
+
         <Label Name="Notes" Grid.Column="0" Grid.Row="0" Content="Notes" FontWeight="DemiBold" VerticalAlignment="top" Height="30"/>
-        <ListBox Grid.Column="0" Grid.Row="0" Margin="0 30 0 0" Name="NoteList" AllowDrop="True" SelectionChanged="NoteList_SelectionChanged" ScrollViewer.VerticalScrollBarVisibility="Visible">
+        <ListBox Grid.Column="0" Grid.Row="0" Margin="0 30 0 0" Name="NoteList" FontSize="20" SelectionChanged="NoteList_SelectionChanged" ScrollViewer.VerticalScrollBarVisibility="Visible">
             <ListBox.Background>
                 <ImageBrush ImageSource="NoteListBG.png" Stretch="Uniform"/>
             </ListBox.Background>
@@ -27,7 +29,7 @@
         <!-- Connect to database for info -->
         <TextBox Grid.Column="1" Grid.Row="0" Name="NoteName" Margin="5" VerticalAlignment="Top" AutoWordSelection="True" TextAlignment="Center" FontWeight="Bold" Height="20" TextChanged="NoteName_TextChanged"/>
         <!-- Set the below Textbox to RichTextBox later, I want to be able to edit the text and add things like bulletpoints, highlighting, bold etc. -->
-        <TextBox Grid.Column="1" Grid.Row="0" Margin="0 30 0 0" Name="NoteSpace" AutoWordSelection="True" MinHeight="400" AcceptsReturn="True" AcceptsTab="True" Text="&#xA;&#x9;Set this box to Rich Text and fix errors.&#xA;&#xA;&#x9;Note list could be converted to a webpage with Images, could integrate FontAwesome?&#xD;&#xA;&#xD;&#xA;&#x9;This link explains how to integrate FW&#xD;&#xA;&#x9;https://dishantmshah.blogspot.com/2015/01/how-to-integrate-font-awesome-in-wpf.html&#xD;&#xA;&#xD;&#xA;&#x9;" TextChanged="NoteSpace_TextChanged"/>
+        <TextBox Grid.Column="1" Grid.Row="0" Margin="-2,30,0,0" Name="NoteSpace" AutoWordSelection="True" MinHeight="400" AcceptsReturn="True" AcceptsTab="True" Text="&#xA;&#x9;Set this box to Rich Text and fix errors.&#xA;&#xA;&#x9;Note list could be converted to a webpage with Images, could integrate FontAwesome? &#xA;&#xA;&#x9;This link explains how to integrate FW&#xA;&#x9;https://dishantmshah.blogspot.com/2015/01/how-to-integrate-font-awesome-in-wpf.html  &#xA;&#xD;&#xA;&#x9;f557" TextChanged="NoteSpace_TextChanged" TextWrapping="Wrap" FontSize="20"/>
 
         <DockPanel Grid.Column="0" Grid.Row="1">
             <Button Name="Delete" Content="Delete" VerticalAlignment="Bottom" Margin="5" HorizontalAlignment="Stretch" Click="Delete_Button_Click" MouseEnter="Delete_MouseEnter"/>
@@ -36,10 +38,16 @@
         </DockPanel>
         <DockPanel Grid.Column="1" Grid.Row="1">
             <Button Name="Save_Button" Content="Save" Margin="5" Click="Save_Button_Click"/>
+
         </DockPanel>
         <DockPanel Grid.Column="1" Grid.Row="2">
             <TextBlock Name="Announcement" Grid.Row="2" HorizontalAlignment="Stretch" TextWrapping="Wrap" Text="Time to start creating!" VerticalAlignment="Stretch" Height="Auto" Width="Auto"/>
             <Button Name="About" Content="About" Margin="5" Click="About_Click" Width="70" HorizontalAlignment="Right"/>
         </DockPanel>
+        <Label Name="Icons" Grid.Column="2" Grid.Row="0" Content="Icon:" FontWeight="DemiBold" VerticalAlignment="top" Height="30"/>
+        <ListBox Grid.Column="2" Grid.Row="0" Margin="0" Name="IconList" FontSize="20" ScrollViewer.VerticalScrollBarVisibility="Visible" FontFamily="{StaticResource FontAwesome}">
+
+        </ListBox>
+        <Button Content="DeleteIcon" Grid.Column="2" HorizontalAlignment="Left" Margin="10,5,0,0" Grid.Row="1" VerticalAlignment="Top" Width="56" Height="25" Click="DeleteIcon_Click"/>
     </Grid>
 </Window>

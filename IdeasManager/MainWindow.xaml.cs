@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -37,6 +38,7 @@ namespace IdeasManager
             string connectionString = (@"Data Source=COLIN\SQLMAIN;Initial Catalog=TestLoginCredentials;Persist Security Info=True;User ID=sa;Password=Thr33four");
             sqlConnection = new SqlConnection(connectionString);
             ShowAllNotes();
+            ShowAllIcons();
         }
 
         private void ShowAllNotes()
@@ -69,18 +71,20 @@ namespace IdeasManager
 
             try
             {
-                string query = "SELECT * FROM NoteData where Username = '" + Properties.Settings.Default.CurrentUserName + "' ORDER BY NoteTitle";
+                string query = "SELECT Icon, NoteTitle FROM NoteData where Username = '" + Properties.Settings.Default.CurrentUserName + "' ORDER BY NoteTitle";
 
                 SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
                 SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(query, sqlConnection);
 
                 using (sqlDataAdapter)
                 {
-                    sqlCommand.Parameters.AddWithValue("@NoteTitle", NoteName.SelectedText);
+                    //sqlCommand.Parameters.AddWithValue("@NoteTitle", NoteName.SelectedText);
+
                     var NoteData = new DataTable();
                     sqlDataAdapter.Fill(NoteData);
 
                     NoteList.DisplayMemberPath = "NoteTitle";
+                    NoteList.DisplayMemberPath = "Icon"; // No idea...
                     NoteList.SelectedValuePath = "NoteTitle";
                     NoteList.ItemsSource = NoteData.DefaultView;
                 }
@@ -277,6 +281,95 @@ namespace IdeasManager
         private void Refresh_Click(object sender, RoutedEventArgs e)
         {
             ShowAllNotes();
+        }
+
+        private void ShowAllIcons()
+        {
+            if (sqlConnection.State == ConnectionState.Closed)
+            {
+                sqlConnection.Open();
+            }
+
+            //try
+            //{
+            //    string query = "SELECT * FROM NoteData where Username = '" + Properties.Settings.Default.CurrentUserName + "' ORDER BY NoteTitle";
+
+            //    SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+            //    SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(query, sqlConnection);
+
+            //    using (sqlDataAdapter)
+            //    {
+            //        sqlCommand.Parameters.AddWithValue("@NoteTitle", NoteName.SelectedText);
+            //        var NoteData = new DataTable();
+            //        sqlDataAdapter.Fill(NoteData);
+
+            //        NoteList.DisplayMemberPath = "NoteTitle";
+            //        NoteList.SelectedValuePath = "NoteTitle";
+            //        NoteList.ItemsSource = NoteData.DefaultView;
+            //    }
+            //}
+
+            try
+            {
+                string query = "Select * FROM IconTable";
+                SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+
+                SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(query, sqlConnection);
+
+                using (sqlDataAdapter)
+                {
+                    var IconData = new DataTable();
+                    sqlDataAdapter.Fill(IconData);
+
+                    IconList.DisplayMemberPath = "Icon";
+                    //IconList.SelectedValuePath = "Icon";
+                    IconList.ItemsSource = IconData.DefaultView;
+                }
+            }
+            catch (Exception e)
+            {
+                //MessageBox.Show("Error: " + e);
+            }
+            finally
+            {
+                sqlConnection.Close();
+            }
+        }
+
+        private void DeleteIcon_Click(object sender, RoutedEventArgs e)
+        {
+            if (IconList.SelectedValue != null)
+            {
+                //if (MessageBox.Show("Are you sure you want to delete this idea?\n", "Question", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                //{
+
+                //}
+                //else
+                //{
+                    try
+                    {
+                        string query = "delete from IconTable where Icon = @Icon";
+                        SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
+                        sqlConnection.Open();
+                        sqlCommand.Parameters.AddWithValue("@IconList", IconList.SelectedValue);
+                        sqlCommand.ExecuteScalar();
+                    }
+                    //catch (Exception ex)
+                    //{
+                    //    MessageBox.Show("Deleting note error:" + ex.ToString());
+                    //}
+                    finally
+                    {
+                        sqlConnection.Close();
+                        IconList.SelectedIndex--;
+                        ShowAllIcons();
+                    }
+                //}
+            }
+            else
+            {
+                MessageBox.Show("Nothing selected.\nSelect an icon to delete.");
+            }
         }
     }
 }
